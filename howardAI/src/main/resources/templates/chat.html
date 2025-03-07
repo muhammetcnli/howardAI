@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>HowardAI Chat</title>
+    <style>
+        .chat-container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .chat-history {
+            height: 300px;
+            border: 1px solid #ddd;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+        .user-message {
+            background-color: #e6f7ff;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        .ai-message {
+            background-color: #f0f0f0;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+        .chat-form {
+            display: flex;
+        }
+        .chat-input {
+            flex-grow: 1;
+            padding: 8px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <h2 >HowardAI Chat</h2>
+
+    <div class="chat-history">
+        <div class="user-message" th:if="${question != null}" th:text="${question}"></div>
+        <div class="ai-message" th:if="${htmlResponse != null}" th:utext="${htmlResponse}"></div>
+    </div>
+
+    <form class="chat-form" th:action="@{/askAI}" method="get">
+        <input type="text" name="question" class="chat-input" placeholder="Ask Howard anything...">
+        <button type="submit">Send</button>
+    </form>
+
+    <button onclick="window.location.href='/'">Back to Home</button>
+</div>
+</body>
+</html>
