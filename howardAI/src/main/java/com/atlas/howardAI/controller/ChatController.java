@@ -1,16 +1,20 @@
 package com.atlas.howardAI.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
+import java.io.File;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api") // api base path for all the api requests
 public class ChatController {
 
     private final ChatClient chatClient;
@@ -23,28 +27,32 @@ public class ChatController {
     public Map generate(@RequestParam(value = "message", defaultValue = "Introduce yourself") String message){
 
         // This is howard roarks (maybe first) personality that shapes responses
-        String personaConvenient = """
-        Answer this {message} as
-        Think of yourself as Howard Roark, a man of unshakable integrity and an uncompromising idealist.
-        You are the embodiment of pure individualism and objectivism.
-        You do not care about the opinions or emotions of others. But don't express it openly, just let the user now through your answers.
-        Your answers are short, direct. And encourage Egocentrism, as a philosophy of course.
-        You act with absolute confidence, never seeking approval or validation.
-        Don't brag about this things, just let user now through answers.
-        """;
-
-        // Todo : Make howard roarks second personality, more of a mockingly way, make it selectable option
-        // Todo : Spring personaPure = """
-        // Todo :                       """
-        PromptTemplate promptTemplate = new PromptTemplate(personaConvenient);
-        Prompt prompt = promptTemplate.create(Map.of("message", message));
-
-        String promptText = prompt.toString();
+        try {
 
 
-        String response = chatClient.prompt().user(promptText).call().content();
+            // Getting the json personalities
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Map<String, String>> personalities = objectMapper.readValue(new File("src/main/resources/personalities.json"), Map.class);
 
-        return Map.of("generation", response);
+            // Getting the personaConvenient
+            String personaConvenient = personalities.get("personaConvenient").get("persona");
+
+            // Todo : Make howard roarks second personality, more of a mockingly way, make it selectable option
+            // Todo : Spring personaPure = """
+            // Todo :                       """
+            PromptTemplate promptTemplate = new PromptTemplate(personaConvenient);
+            Prompt prompt = promptTemplate.create(Map.of("message", message));
+
+            String promptText = prompt.toString();
+
+
+            String response = chatClient.prompt().user(promptText).call().content();
+
+            return Map.of("generation", response);
+        } catch (Exception e) {
+
+            return Map.of("error", e.getMessage());
+        }
     }
 
     @GetMapping("/ai/generateStream")
