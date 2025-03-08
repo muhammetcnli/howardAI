@@ -37,7 +37,7 @@ public class ChatViewController {
     @GetMapping("/askAI")
     public String askAI(@RequestParam(value = "question") String question, Model model) {
 
-        // every chat has its own ID, and routed through that id, and its randomly created
+        // Todo: every chat has its own ID, and routed through that id, and its randomly created
         String CHAT_ID = "";
 
         try {
@@ -63,6 +63,7 @@ public class ChatViewController {
                     return "error";
                 }
 
+                // Get the personaConvenient from personalities map
                 String personaConvenient = personalities.get("personaConvenient").get("persona");
 
                 if (personaConvenient == null || personaConvenient.isEmpty()) {
@@ -70,17 +71,21 @@ public class ChatViewController {
                     return "error";
                 }
 
+                // Create the promptTemplate
                 PromptTemplate promptTemplate = new PromptTemplate(personaConvenient);
+
+                // Create the prompt
                 Prompt prompt = promptTemplate.create(Map.of("message", question));
-
                 String promptText = prompt.toString();
-                String response = chatClient.prompt().user(promptText).call().content();
 
+                // Get the response from groq api and format it
+                String response = chatClient.prompt().user(promptText).call().content();
                 response = response.replaceAll("(?s)<think>.*?</think>", "").trim();
 
-                // converting response to html
+                // Convert response to html
                 String htmlResponse = htmlService.markdownToHtml(response);
 
+                // Add the attributes question and response to the model
                 model.addAttribute("question", question);
                 model.addAttribute("htmlResponse", htmlResponse);
 
