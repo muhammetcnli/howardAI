@@ -26,10 +26,7 @@ public class ChatController {
     @GetMapping("ai/generate")
     public Map generate(@RequestParam(value = "message", defaultValue = "Introduce yourself") String message){
 
-        // This is howard roarks (maybe first) personality that shapes responses
         try {
-
-
             // Getting the json personalities
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Map<String, String>> personalities = objectMapper.readValue(new File("src/main/resources/personalities.json"), Map.class);
@@ -37,9 +34,7 @@ public class ChatController {
             // Getting the personaConvenient
             String personaConvenient = personalities.get("personaConvenient").get("persona");
 
-            // Todo : Make howard roarks second personality, more of a mockingly way, make it selectable option
-            // Todo : Spring personaPure = """
-            // Todo :                       """
+
             PromptTemplate promptTemplate = new PromptTemplate(personaConvenient);
             Prompt prompt = promptTemplate.create(Map.of("message", message));
 
