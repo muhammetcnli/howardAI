@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.stringtemplate.v4.ST;
 
 import java.io.File;
 import java.util.HashMap;
@@ -30,8 +29,8 @@ public class ChatViewController {
     }
 
     @GetMapping("/chat")
-    public String chat(Model model){
-        return  "chat";
+    public String chat(Model model) {
+        return "chat";
     }
 
     @GetMapping("/askAI")
@@ -107,7 +106,6 @@ public class ChatViewController {
             return "error";
         }
     }
-
 
 
 }
