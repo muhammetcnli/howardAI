@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "chat")
 public class Chat {
 
     @Id
@@ -22,7 +23,7 @@ public class Chat {
     private LocalDate createdAt;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Message> messages  = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
 
     @ManyToOne
@@ -63,14 +64,13 @@ public class Chat {
         this.user = user;
     }
 
-    public void addMessage(Message message){
+    public void addMessage(Message message) {
         messages.add(message);
     }
 
-    public void removeMessage(Message message){
+    public void removeMessage(Message message) {
         messages.remove(message);
     }
-
 
 
 }

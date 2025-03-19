@@ -1,17 +1,23 @@
 package com.atlas.howardAI.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 
 @Entity
+@Table(name = "user")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    @JdbcTypeCode(java.sql.Types.VARCHAR)
+    private UUID id;
 
     @Column(name = "message_limit")
     private Integer messageLimit;
@@ -20,8 +26,8 @@ public class User {
     @Column(name = "limit_reset_date")
     private Integer limitResetDate;
 
-    @Column(name = "profile_photo_url")
-    private String profilePhotoUrl;
+    @Column(name = "picture")
+    private String picture;
 
     @Column(name = "first_name")
     private String firstName;
@@ -38,6 +44,12 @@ public class User {
     @Column
     private String role;
 
+    @Column(name = "provider")
+    private String provider;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<Chat> chats;
 
@@ -45,9 +57,9 @@ public class User {
     public User() {
     }
 
-    // constructor excluding Id, chats list,
-    public User(Integer messageLimit,String profilePhotoUrl, String firstName, String lastName, String email, String password, String role) {
-        this.profilePhotoUrl = profilePhotoUrl;
+    // constructor excluding Id, chats list
+    public User(Integer messageLimit, String picture, String firstName, String lastName, String email, String password, String role) {
+        this.picture = picture;
         this.messageLimit = messageLimit;
         this.limitResetDate = 1;
         this.firstName = firstName;
@@ -57,14 +69,24 @@ public class User {
         this.role = role;
     }
 
-
-
     // getters
-    public String getProfilePhotoUrl() {
-        return profilePhotoUrl;
+    public String getProvider() {
+        return provider;
     }
 
-    public Long getId() {
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public String getName() {
+        return firstName;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public UUID getId() {
         return id;
     }
 
@@ -101,9 +123,20 @@ public class User {
     }
 
     // setters
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
 
-    public void setProfilePhotoUrl(String profilePhotoUrl) {
-        this.profilePhotoUrl = profilePhotoUrl;
+    public void setName(String name) {
+        this.firstName = name; // use firstName as name
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
+    }
+
+    public void setPicture(String profilePhotoUrl) {
+        this.picture = profilePhotoUrl;
     }
 
     public void setMessageLimit(Integer messageLimit) {
@@ -136,9 +169,8 @@ public class User {
 
     // helper method for adding chat to user's list
     public void addChat(Chat chat) {
-
         // check if chats is null, if yes, create new chats list
-        if(chats==null){
+        if (chats == null) {
             chats = new ArrayList<>();
         }
 
@@ -149,8 +181,12 @@ public class User {
         chat.setUser(this);
     }
 
+    public void setUsername(String email) {
+        this.email = email; // email'i username olarak kullanacağız
+    }
+
     // helper method for removing chat from user's list
-    public void removeChat(Chat chat){
+    public void removeChat(Chat chat) {
         // remove chat from chats
         chats.remove(chat);
 
@@ -159,7 +195,7 @@ public class User {
     }
 
     // helper method for locating default profile picture URL
-    public String defaultPhotoUrl(){
+    public String defaultPicture() {
         return "/images/default_pic.jpg";
     }
 }
