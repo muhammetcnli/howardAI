@@ -7,10 +7,9 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 @SpringBootApplication
-@EnableWebSecurity
 public class HowardAiApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(HowardAiApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(HowardAiApplication.class, args);
+    }
 
 }
