@@ -1,6 +1,7 @@
 package com.atlas.howardAI.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,12 +13,13 @@ import java.util.UUID;
 public class Chat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
+    @JdbcTypeCode(java.sql.Types.VARCHAR)
+    private UUID id;
 
-    @Column(unique = true, nullable = false, length = 36, name = "chat_identifier")
-    private String chatIdentifier;
-
+    @Column(name = "title")
+    private String title;
 
     @Column(name = "created_at")
     private LocalDate createdAt;
@@ -30,21 +32,19 @@ public class Chat {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // empty constructor, chatIdentifier and createdAt initialization
+    // empty constructor, createdAt initialization
     public Chat() {
-        // make the chatIdentifier UUID for routing
-        this.chatIdentifier = UUID.randomUUID().toString();
         // make createdAt now
         this.createdAt = LocalDate.now();
     }
 
     // getters
-    public Long getId() {
-        return id;
+    public String getTitle() {
+        return title;
     }
 
-    public String getChatIdentifier() {
-        return chatIdentifier;
+    public UUID getId() {
+        return id;
     }
 
     public LocalDate getCreatedAt() {
@@ -60,6 +60,15 @@ public class Chat {
     }
 
     // setter
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -71,6 +80,4 @@ public class Chat {
     public void removeMessage(Message message) {
         messages.remove(message);
     }
-
-
 }
