@@ -25,8 +25,13 @@ public class SecurityConfig {
                         registry.requestMatchers("/").permitAll();
                         registry.anyRequest().authenticated();
                 })
+                    // Configure OAuth2 login functionality
                 .oauth2Login(oauth2 ->
+                        // Customize the userInfo endpoint processing
                     oauth2.userInfoEndpoint(userInfo ->
+                            // Set our custom OAuth2UserService to handle user information
+                            // This service processes user data from the OAuth provider like Google
+                            // and maps it to our application's user model
                         userInfo.userService(oAuth2UserService)
                     )
                 )
