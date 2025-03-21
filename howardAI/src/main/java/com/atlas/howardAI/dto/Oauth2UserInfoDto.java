@@ -7,11 +7,11 @@ public class Oauth2UserInfoDto {
     private String email;
     private String picture;
 
-    // Varsayılan yapıcı
+    // Default Constructor
     public Oauth2UserInfoDto() {
     }
 
-    // Parametreli yapıcı
+    // Constructor with parameter
     public Oauth2UserInfoDto(String id, String name, String lastName, String email, String picture) {
         this.id = id;
         this.name = name;
@@ -20,7 +20,7 @@ public class Oauth2UserInfoDto {
         this.picture = picture;
     }
 
-    // Getter ve setter metodları
+    // Getter and Setter methods
     public String getId() {
         return id;
     }
@@ -61,12 +61,12 @@ public class Oauth2UserInfoDto {
         this.picture = picture;
     }
 
-    // Builder metodu
+    // Builder method
     public static Oauth2UserInfoDtoBuilder builder() {
         return new Oauth2UserInfoDtoBuilder();
     }
 
-    // Builder sınıfı
+    // Builder class
     public static class Oauth2UserInfoDtoBuilder {
         private String id;
         private String name;
