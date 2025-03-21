@@ -1,31 +1,30 @@
 package com.atlas.howardAI.controller;
 
-import com.atlas.howardAI.service.HtmlService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
+import com.atlas.howardAI.entity.Chat;
+import com.atlas.howardAI.entity.User;
+import com.atlas.howardAI.service.AIService;
+import com.atlas.howardAI.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.UUID;
 
 @Controller
 public class ChatViewController {
 
-    private final ChatClient chatClient;
-    private final HtmlService htmlService;
+    private final ChatService chatService;
+    private final AIService aiService;
 
     @Autowired
-    public ChatViewController(ChatClient.Builder builder, HtmlService htmlService) {
-        this.chatClient = builder.build();
-        this.htmlService = htmlService;
+    public ChatViewController(ChatService chatService, AIService aiService) {
+        this.chatService = chatService;
+        this.aiService = aiService;
     }
 
     @GetMapping("/chat")
@@ -33,79 +32,62 @@ public class ChatViewController {
         return "chat";
     }
 
-    @GetMapping("/askAI")
-    public String askAI(@RequestParam(value = "question") String question, Model model) {
+    @PostMapping("/chat")
+    public String createNewChat(@RequestParam("question") String question, Model model) {
+        // create chat with question
+        Chat chat = chatService.createChat(question);
 
-        // Todo: every chat has its own ID, and routed through that id, and its randomly created
-        String CHAT_ID = "";
+        // Add user message
+        chatService.addMessageToChat(chat.getId(), question, true);
 
         try {
-            // Use Spring's file reading
-            ObjectMapper objectMapper = new ObjectMapper();
-
-            // Use ClassPathResource
-            org.springframework.core.io.Resource resource =
-                    new org.springframework.core.io.ClassPathResource("personalities.json");
-
-            if (!resource.exists()) {
-                model.addAttribute("error", "cannot find personalities.json.");
-                return "error";
-            }
-
-            try {
-                // Read file as InputStream
-                Map<String, Map<String, String>> personalities =
-                        objectMapper.readValue(resource.getInputStream(), Map.class);
-
-                if (!personalities.containsKey("personaConvenient")) {
-                    model.addAttribute("error", "Cannot find persona personaConvenient.");
-                    return "error";
-                }
-
-                // Get the personaConvenient from personalities map
-                String personaConvenient = personalities.get("personaConvenient").get("persona");
-
-                if (personaConvenient == null || personaConvenient.isEmpty()) {
-                    model.addAttribute("error", "personaConvenient is empty of invalid.");
-                    return "error";
-                }
-
-                // Create the promptTemplate
-                PromptTemplate promptTemplate = new PromptTemplate(personaConvenient);
-
-                // Create the prompt
-                Prompt prompt = promptTemplate.create(Map.of("message", question));
-                String promptText = prompt.toString();
-
-                // Get the response from groq api and format it
-                String response = chatClient.prompt().user(promptText).call().content();
-                response = response.replaceAll("(?s)<think>.*?</think>", "").trim();
-
-                // Convert response to html
-                String htmlResponse = htmlService.markdownToHtml(response);
-
-                // Add the attributes question and response to the model
-                model.addAttribute("question", question);
-                model.addAttribute("htmlResponse", htmlResponse);
-
-                return "chat";
-
-            } catch (com.fasterxml.jackson.core.JsonParseException e) {
-                model.addAttribute("error", "JSON format error: " + e.getMessage());
-                return "error";
-            } catch (com.fasterxml.jackson.databind.JsonMappingException e) {
-                model.addAttribute("error", "JSON value error: " + e.getMessage());
-                return "error";
-            }
-
-        } catch (java.io.IOException e) {
-            model.addAttribute("error", "File read error: " + e.getMessage());
-            return "error";
+            // get AI response and add
+            String response = aiService.getAIResponse(question);
+            chatService.addMessageToChat(chat.getId(), response, false);
         } catch (Exception e) {
-            model.addAttribute("error", "AI response error: " + e.getMessage());
+            chatService.addMessageToChat(chat.getId(), "Cannot get response: " + e.getMessage(), false);
+        }
+
+        // Redirect to new chat page
+        return "redirect:/chat/" + chat.getId();
+    }
+
+    @GetMapping("/chat/{id}")
+    public String getChatById(@PathVariable(value = "id") UUID id, Model model) {
+        // Add chat ID to model, necessary for form
+        model.addAttribute("chatId", id);
+
+        try {
+            // Find current chat
+            Chat chat = chatService.findChatByIdWithOrderedMessages(id);
+            model.addAttribute("chat", chat);
+            model.addAttribute("messages", chat.getMessages());
+
+            // Show current chat if there is not a question
+            return "chat";
+        } catch (Exception e) {
+            model.addAttribute("error", "Chat could not be loaded: " + e.getMessage());
             return "error";
         }
     }
 
+    @PostMapping("/chat/{id}")
+    public String sendMessage(@PathVariable(value = "id")UUID id,
+                              @RequestParam("question")String question) {
+        try {
 
+            // Add user message
+            chatService.addMessageToChat(id, question,true);
+
+            // get AI answer and add
+            String response = aiService.getAIResponse(question);
+            chatService.addMessageToChat(id, response, false);
+
+            // Redirect to clean URL
+            return "redirect:/chat/" + id;
+        } catch (Exception e) {
+            chatService.addMessageToChat(id, "Yanıt alınamadı: " + e.getMessage(), false);
+            return "redirect:/chat/" + id;
+        }
+    }
 }
