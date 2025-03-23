@@ -31,7 +31,7 @@ public class ChatService {
         this.aiService = aiService;
     }
 
-    public Chat createChat(String question) {
+    public Chat createChat(){
         User currentUser = getCurrentUser();
 
         // Create new chat
@@ -46,7 +46,7 @@ public class ChatService {
         return chatRepository.findById(id).orElseThrow(()-> new RuntimeException("Chat not found"+ id));
     }
 
-    private User getCurrentUser() {
+    public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.getPrincipal() instanceof OAuth2User) {

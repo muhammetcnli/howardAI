@@ -29,20 +29,30 @@ public class ChatViewController {
 
     @GetMapping("/chat")
     public String chat(Model model) {
-        return "chat";
+        try{
+            // Get current user
+        User user = chatService.getCurrentUser();
+
+        // Add current user to model
+        model.addAttribute("userChats", user.getChats());
+        return "chat";}
+        catch (Exception e){
+            model.addAttribute("error", "No user info.");
+            return "error";
+        }
     }
 
     @PostMapping("/chat")
-    public String createNewChat(@RequestParam("question") String question, Model model) {
+    public String createNewChat(@RequestParam("question") String question) {
         // create chat with question
-        Chat chat = chatService.createChat(question);
+        Chat chat = chatService.createChat();
 
         // Add user message
         chatService.addMessageToChat(chat.getId(), question, true);
 
         try {
             // get AI response and add
-            String response = aiService.getAIResponse(question);
+            String response = aiService.getHtmlResponse(question);
             chatService.addMessageToChat(chat.getId(), response, false);
         } catch (Exception e) {
             chatService.addMessageToChat(chat.getId(), "Cannot get response: " + e.getMessage(), false);
@@ -62,6 +72,10 @@ public class ChatViewController {
             Chat chat = chatService.findChatByIdWithOrderedMessages(id);
             model.addAttribute("chat", chat);
             model.addAttribute("messages", chat.getMessages());
+
+            // Get current user
+            User user = chatService.getCurrentUser();
+            model.addAttribute("userChats", user.getChats());
 
             // Show current chat if there is not a question
             return "chat";

@@ -65,35 +65,10 @@ public class AIService {
         return htmlService.markdownToHtml(response);
     }
 
+    // This method generates chat title
     public String generateChatTitle(String question) throws IOException {
 
-        // Get personalities file
-        ObjectMapper objectMapper = new ObjectMapper();
-        Resource resource = new ClassPathResource("personalities.json");
-
-        if (!resource.exists()) {
-            throw new IOException("File not found");
-        }
-
-        Map<String, Map<String, String>> personalities = objectMapper.readValue(resource.getInputStream(), Map.class);
-        String personaConvenient = personalities.get("personaConvenient").get("persona");
-
-        // Başlık için ayrı bir prompt oluştur
-        PromptTemplate promptTemplate = new PromptTemplate(personaConvenient);
-        Prompt titlePrompt = promptTemplate.create(Map.of("message", "Create a short title (max 30 characters) based on this message: " + question));
-
-        // Başlığı al
-        String title = chatClient.prompt().user(titlePrompt.toString()).call().content()
-                .replaceAll("(?s)<think>.*?</think>", "")
-                .replaceAll("^\"(.*)\"$", "$1")
-                .trim();
-
-        // Başlık çok uzunsa kısalt
-        if (title.length() > 30) {
-            title = title.substring(0, 27) + "...";
-        }
-
-        return title;
+        return getAIResponse("Create a short and convenient title (max 30 characters) based on this message: " + question);
     }
 
 }
