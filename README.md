@@ -22,7 +22,7 @@ The project consists of two main components:
 ## Setup
 1. Clone the project:
    ```bash
-   git clone https://github.com/username/howardAI.git
+   git clone https://github.com/muhammetcnli/howardAI.git
 
 ## Screenshots
 
