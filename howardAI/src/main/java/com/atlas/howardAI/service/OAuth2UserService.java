@@ -22,7 +22,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest){
+    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) {
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
         return processOAuth2User(oAuth2UserRequest, oAuth2User);
     }

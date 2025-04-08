@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing chat-related operations.
+ */
 @Service
 public class ChatService {
 
@@ -31,7 +34,11 @@ public class ChatService {
         this.aiService = aiService;
     }
 
-    public Chat createChat(){
+    /**
+     * Creates a new chat for the current user.
+     * @return The created Chat object.
+     */
+    public Chat createChat() {
         User currentUser = getCurrentUser();
 
         // Create new chat
@@ -42,10 +49,21 @@ public class ChatService {
         return chatRepository.save(chat);
     }
 
+    /**
+     * Finds a chat by its ID.
+     * @param id The UUID of the chat.
+     * @return The Chat object.
+     * @throws RuntimeException if the chat is not found.
+     */
     public Chat findChatById(UUID id) {
-        return chatRepository.findById(id).orElseThrow(()-> new RuntimeException("Chat not found"+ id));
+        return chatRepository.findById(id).orElseThrow(() -> new RuntimeException("Chat not found" + id));
     }
 
+    /**
+     * Retrieves the current authenticated user.
+     * @return The User object.
+     * @throws RuntimeException if the user is not authenticated.
+     */
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -55,13 +73,19 @@ public class ChatService {
             String email = oauth2User.getAttribute("email");
             if (email != null) {
                 return userRepository.findByEmail(email)
-                        .orElseThrow(()-> new RuntimeException("User not found"));
+                        .orElseThrow(() -> new RuntimeException("User not found"));
             }
         }
 
         throw new RuntimeException("Not authenticated or invalid user.");
     }
 
+    /**
+     * Adds a message to a chat.
+     * @param chatId The UUID of the chat.
+     * @param content The content of the message.
+     * @param isUser Whether the message is from the user.
+     */
     public void addMessageToChat(UUID chatId, String content, boolean isUser) {
         Chat chat = findChatById(chatId);
 
@@ -70,6 +94,7 @@ public class ChatService {
         message.setChat(chat);
         message.setIsUser(isUser);
 
+        // Generate a title for the chat if it's the first message
         if (isUser && chat.getMessages().isEmpty()) {
             try {
 
@@ -84,6 +109,11 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
+    /**
+     * Finds a chat by its ID and orders its messages by creation time.
+     * @param chatId The UUID of the chat.
+     * @return The Chat object with ordered messages.
+     */
     public Chat findChatByIdWithOrderedMessages(UUID chatId) {
         Chat chat = findChatById(chatId);
 

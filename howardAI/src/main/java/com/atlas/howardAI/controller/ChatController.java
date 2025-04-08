@@ -31,25 +31,25 @@ public class ChatController {
     public Map<String, Object> debugToken(OAuth2AuthenticationToken token) {
         Map<String, Object> tokenInfo = new HashMap<>();
 
-        // Ana OAuth2 bilgileri
+        // Main OAuth2 information
         tokenInfo.put("name", token.getName());
         tokenInfo.put("authorities", token.getAuthorities());
         tokenInfo.put("authenticated", token.isAuthenticated());
         tokenInfo.put("details", token.getDetails());
         tokenInfo.put("authorizedClientRegistrationId", token.getAuthorizedClientRegistrationId());
 
-        // Principal (kullanıcı) bilgileri
+        // Principal (user) information
         Map<String, Object> attributes = new HashMap<>(token.getPrincipal().getAttributes());
         tokenInfo.put("principal_attributes", attributes);
 
-        // OAuth2 kullanıcı bilgileri
+        // OAuth2 user information
         tokenInfo.put("principal_name", token.getPrincipal().getName());
 
         return tokenInfo;
     }
 
     @GetMapping("ai/generate")
-    public Map generate(@RequestParam(value = "message", defaultValue = "Introduce yourself") String message){
+    public Map generate(@RequestParam(value = "message", defaultValue = "Introduce yourself") String message) {
 
         try {
             // Getting the json personalities
@@ -75,13 +75,12 @@ public class ChatController {
         }
     }
 
+    // ToDo: add personality to generateStream
     @GetMapping("/ai/generateStream")
     public Flux<String> generateStream(@RequestParam(value = "message",
             defaultValue = "Tell me a joke") String message) {
         return chatClient.prompt().user(message).stream().content();
     }
-
-
 
 
 }

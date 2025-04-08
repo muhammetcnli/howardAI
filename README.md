@@ -1,20 +1,28 @@
-# howardAI
-HowardAI - Intelligent Chatbot Powered by Spring AI
+# HowardAI
 
-This is my second project with spring. It's basically a AI chatbot but it has Howard Roarks sprit on it. It's direct, self-dependent.
+HowardAI is an AI-powered chat application that allows users to chat with Howard Roark.
 
-Development steps:
-- First step is the backend and API, make a API that connects with a LLM, I'm not decided that right now
-	- Initiate a spring project in spring initializer with the dependencies:
-		- starter web
-		- data jpa
-		- postgreSql
-		- devtools
-		- jackson
-		- spring AI
-- Initiate the front end, probably some thymeleaf for now, but might improve later to react
-- Next step is the database connection, use postgres
-- (optional) maybe some payment system, (Stripe / iyzico / PayTR)
-- Deploy the project, use Railway
-- You should have a Minimum Viable Product by now, you can improve from now on
+## Features
+- User authentication (Google OAuth2 integration)
+- AI-powered chat
+- Chat history management
+- Dynamic chat titles
 
+## Technologies
+- **Backend**: Spring Boot, Hibernate, JPA
+- **Frontend**: Thymeleaf
+- **Database**: MySQL
+- **AI**: Groq API (llama3-70b-8192 model)
+
+## Setup
+1. Clone the project:
+   ```bash
+   git clone https://github.com/username/howardAI.git
+
+## Screenshots
+
+### Chat Page
+![Chat Page](./src/main/resources/static/images/index.png)
+
+### Profile Page
+![Profile Page](src/main/resources/static/images/profile-page.png)

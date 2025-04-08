@@ -29,14 +29,14 @@ public class ChatViewController {
 
     @GetMapping("/chat")
     public String chat(Model model) {
-        try{
+        try {
             // Get current user
-        User user = chatService.getCurrentUser();
+            User user = chatService.getCurrentUser();
 
-        // Add current user to model
-        model.addAttribute("userChats", user.getChats());
-        return "chat";}
-        catch (Exception e){
+            // Add current user to model
+            model.addAttribute("userChats", user.getChats());
+            return "chat";
+        } catch (Exception e) {
             model.addAttribute("error", "No user info.");
             return "error";
         }
@@ -86,12 +86,12 @@ public class ChatViewController {
     }
 
     @PostMapping("/chat/{id}")
-    public String sendMessage(@PathVariable(value = "id")UUID id,
-                              @RequestParam("question")String question) {
+    public String sendMessage(@PathVariable(value = "id") UUID id,
+                              @RequestParam("question") String question) {
         try {
 
             // Add user message
-            chatService.addMessageToChat(id, question,true);
+            chatService.addMessageToChat(id, question, true);
 
             // get AI answer and add
             String response = aiService.getAIResponse(question);
